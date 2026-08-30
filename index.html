@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -725,4 +726,733 @@ contactForm.addEventListener('submit', async (e) => {
 </script>
 
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>MICHAEL.ARTS — 3D Artist & Roblox Developer</title>
+<meta name="description" content="Portfolio of a 3D artist & Roblox Proffesional Developer">
+
+<!-- ============================================================
+  CARA GANTI ISI WEBSITE INI ADA DI PALING BAWAH FILE (bagian <script>).
+  Semua teks, foto, logo, timeline, dan goals diatur lewat DATA ARRAY
+  di JS, jadi kamu nggak perlu utak-atik HTML sama sekali.
+
+  CATATAN: halaman ini sekarang link ke works.html (halaman ke-2, galeri
+  Roblox Work / Blender Work) lewat nav "My Works" dan tombol di Hero.
+  Pastikan file works.html ada di folder yang sama dengan file ini.
+
+  CATATAN SCALE LOGO: tiap logo di marquee (array `tools`) sekarang
+  punya field `scale` sendiri-sendiri, jadi ukuran tiap logo bisa
+  diatur satu-satu tanpa ngubah logo lain atau bagian web lainnya.
+  Lihat komentar di array `tools` di bagian <script> paling bawah.
+
+  BARU — MODEL 3D DI HERO (render.glb):
+  Hero sekarang nge-load file "render.glb" pakai <model-viewer>.
+  - Taruh file render.glb di folder yang SAMA dengan file HTML ini.
+  - Kalau nama filenya beda / mau ganti model, tinggal ubah
+    HERO_MODEL_SRC di bagian <script> paling bawah (dekat komentar
+    "MODEL 3D SETTINGS").
+  - Di PC/laptop (device yang punya mouse): model otomatis nengok
+    ngikutin posisi kursor kamu di layar. Begitu kamu klik-drag
+    modelnya, dia lepas dari mode "ngikutin kursor" dan pure ngikutin
+    tarikan mouse kamu (biar nggak rebutan sama drag manual), terus
+    balik ngikutin kursor lagi beberapa detik setelah kamu lepas drag.
+  - Di HP/tablet (touch): model default menghadap ke depan (nggak
+    ngikutin apa-apa), dan tetap bisa diputar manual pakai jari
+    (drag/swipe di atas modelnya).
+  - Sudut pandang default, batas gerakan ngikutin kursor, dan jarak
+    kamera semua bisa diatur lewat variabel-variabel di komentar
+    "MODEL 3D SETTINGS" di bawah — nggak perlu ubah bagian lain.
+============================================================= -->
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- BARU: library <model-viewer> buat nampilin file .glb -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base:    '#0A0908',
+          panel:   '#161412',
+          line:    '#2A2622',
+          orange:  '#FF6A1A',
+          amber:   '#FFA24C',
+          rust:    '#C7430C',
+          ink:     '#F4F1EC',
+          mute:    '#A69C90',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['"Inter"', 'sans-serif'],
+        },
+      }
+    }
+  }
+</script>
+
+<style>
+  :root{
+    --base:#0A0908; --panel:#161412; --line:#2A2622;
+    --orange:#FF6A1A; --amber:#FFA24C; --rust:#C7430C;
+    --ink:#F4F1EC; --mute:#A69C90;
+  }
+  *{ scrollbar-color: var(--line) var(--base); }
+  html{ scroll-behavior: smooth; }
+  body{ background: var(--base); color: var(--mute); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+  .grad-text{
+    background: linear-gradient(100deg, var(--amber), var(--orange) 60%, var(--rust));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .glow{
+    position:absolute; border-radius:9999px; filter: blur(90px);
+    background: radial-gradient(circle at 30% 30%, rgba(255,138,60,0.55), rgba(199,67,12,0.12) 60%, transparent 75%);
+    pointer-events:none;
+  }
+  @keyframes drift{ 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(-16px,18px) scale(1.06);} }
+  .glow-slow{ animation: drift 14s ease-in-out infinite; }
+
+  .btn-primary{
+    background: linear-gradient(135deg, var(--amber), var(--orange) 55%, var(--rust));
+    color:#1A0900;
+    box-shadow: 0 10px 30px -10px rgba(255,106,26,0.55);
+    transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 16px 36px -8px rgba(255,106,26,0.75); filter: brightness(1.05); }
+
+  .nav-link{ position:relative; color: var(--mute); transition:.25s; }
+  .nav-link::after{ content:""; position:absolute; left:0; bottom:-4px; width:0; height:1.5px; background:linear-gradient(90deg,var(--amber),var(--orange)); transition:width .25s; }
+  .nav-link:hover{ color: var(--ink); }
+  .nav-link:hover::after{ width:100%; }
+
+  .chip{
+    font-size:12px; font-weight:500; color: var(--mute);
+    border:1px solid var(--line); background: rgba(255,255,255,0.02);
+  }
+
+  .portrait-frame{
+    position:relative; border-radius: 28px; overflow:hidden;
+    background: linear-gradient(160deg, #1c1712, #0c0a08 60%);
+    border: 1px solid var(--line);
+  }
+  .portrait-frame::before{
+    content:""; position:absolute; inset:-40%;
+    background: conic-gradient(from 200deg at 50% 50%, transparent 0deg, rgba(255,106,26,0.35) 90deg, transparent 180deg, rgba(255,162,76,0.25) 300deg, transparent 360deg);
+    animation: rotateGlow 18s linear infinite;
+  }
+  @keyframes rotateGlow{ to{ transform: rotate(360deg); } }
+  .portrait-inner{ position:relative; z-index:1; margin:2px; border-radius:26px; background: linear-gradient(180deg, rgba(10,9,8,0.2), rgba(10,9,8,0.85)); backdrop-filter: blur(2px); }
+
+  .float-y{ animation: floatY 6s ease-in-out infinite; }
+  @keyframes floatY{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-10px);} }
+  @media (prefers-reduced-motion: reduce){ .glow-slow,.float-y,.portrait-frame::before,.marquee-track{ animation:none !important; } }
+
+  .marquee-mask{ -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .marquee-track{ display:flex; width:max-content; animation: scrollLeft 26s linear infinite; }
+  .marquee-track:hover{ animation-play-state: paused; }
+  @keyframes scrollLeft{ from{ transform: translateX(0);} to{ transform: translateX(-50%);} }
+
+  .service-num{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.9rem;
+    background: linear-gradient(160deg, var(--amber), var(--rust));
+    -webkit-background-clip:text; background-clip:text; color:transparent; opacity:.85;
+  }
+
+  /* ---------- goals list (What I'm Planning) ---------- */
+  .goal-item{ border-bottom:1px solid var(--line); }
+  .goal-item:last-child{ border-bottom:none; }
+
+  /* ---------- timeline ---------- */
+  .tl-line{
+    position:absolute; left:7px; top:6px; bottom:6px; width:1px;
+    background: linear-gradient(180deg, var(--orange), var(--line) 85%);
+  }
+  @media (min-width:768px){ .tl-line{ left:50%; margin-left:-0.5px; } }
+  .tl-dot{
+    width:15px; height:15px; border-radius:9999px;
+    background: linear-gradient(135deg, var(--amber), var(--orange));
+    box-shadow: 0 0 0 4px var(--base), 0 0 20px -2px rgba(255,106,26,0.8);
+  }
+  .tl-card{
+    background: linear-gradient(180deg, var(--panel), #100e0c);
+    border:1px solid var(--line);
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .tl-card:hover{ border-color: rgba(255,106,26,0.5); transform: translateY(-3px); }
+
+  /* ---------- PROTECTED IMAGE / WATERMARK (dipakai lagi di halaman ke-2
+     buat gallery karya) ---------- */
+  .protected-media{ position:relative; overflow:hidden; user-select:none; -webkit-user-select:none; }
+  .protected-media img{ display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; user-select:none; -webkit-user-drag:none; }
+  .protected-media .wm-layer{ position:absolute; inset:-20%; display:grid; grid-template-columns: repeat(4,1fr); transform: rotate(-24deg); pointer-events:none; opacity:.5; }
+  .protected-media .wm-layer span{ font-size:11px; color:#fff; opacity:.15; white-space:nowrap; text-align:center; padding:18px 4px; }
+
+  input, textarea{ background: var(--panel); border:1px solid var(--line); color: var(--ink); }
+  input::placeholder, textarea::placeholder{ color:#6b6459; }
+  input:focus, textarea:focus{ outline:none; border-color: var(--orange); box-shadow:0 0 0 3px rgba(255,106,26,0.15); }
+
+  ::selection{ background: var(--orange); color:#1A0900; }
+
+  /* ---------- BARU: model 3D di Hero ---------- */
+  #heroModel{
+    width:100%; height:100%;
+    --poster-color: transparent;
+    background-color: transparent;
+  }
+  /* biar nggak ke-scroll aneh pas orang drag modelnya di HP,
+     tapi tetep bisa di-scroll vertikal kalau geser di luar area drag */
+  #heroModel{ touch-action: pan-y; }
+</style>
+</head>
+
+<body class="bg-base text-mute font-body">
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-base/75 border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="#home" class="font-display font-semibold tracking-tight text-ink">
+      YOUR<span class="grad-text">.</span>NAME <!-- EDIT: ganti dengan nama/logo kamu -->
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      <a href="#journey" class="nav-link">About</a>
+      <a href="#timeline" class="nav-link">Timeline</a>
+      <a href="works.html" class="nav-link">My Works</a>
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a href="#contact" class="hidden md:inline-flex btn-primary text-xs px-5 py-2.5 rounded-full font-semibold">
+        Contact Me
+      </a>
+      <button id="menuBtn" class="md:hidden text-ink p-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="md:hidden hidden border-t border-line bg-base/95 px-5 py-4 space-y-3">
+    <a href="#journey" class="block nav-link">About</a>
+    <a href="#timeline" class="block nav-link">Timeline</a>
+    <a href="works.html" class="block nav-link">My Works</a>
+    <a href="#services" class="block nav-link">Services</a>
+    <a href="#contact" class="block btn-primary text-center rounded-full py-2.5 text-xs font-semibold mt-2">Contact Me</a>
+  </div>
+</header>
+
+<!-- ============================== HERO ============================== -->
+<section id="home" class="relative pt-32 pb-20 md:pt-44 md:pb-28 px-5 md:px-8 overflow-hidden">
+  <div class="glow glow-slow w-[520px] h-[520px] -top-40 -left-40"></div>
+  <div class="glow w-[420px] h-[420px] top-1/3 -right-32 opacity-70"></div>
+
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-14 items-center relative">
+    <div>
+      <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-4 uppercase">3D Artist · Roblox Developer</p>
+      <h1 class="font-display font-bold text-ink leading-[0.98] text-5xl sm:text-6xl lg:text-7xl">
+        HI, I'M<br><span class="grad-text">MICHAEL</span> <!-- EDIT: ganti nama kamu -->
+      </h1>
+      <p class="mt-6 text-mute max-w-md leading-relaxed">
+     I am a professional 3D modeler and Roblox developer who has been working in the industry since 2021, with total mastery in environment building, 3D modeling, and game scripting.
+        <!-- EDIT: ganti dengan deskripsi singkat tentang diri kamu -->
+      </p>
+
+      <!-- SKILL BADGES: diisi otomatis dari array `skills` di bagian <script> paling bawah -->
+      <div id="skillBadges" class="flex flex-wrap gap-2 mt-8"></div>
+
+      <div class="flex items-center gap-5 mt-10">
+        <a href="works.html" class="btn-primary rounded-full px-6 py-3 text-sm font-semibold">My Works</a>
+        <a href="#contact" class="text-sm border-b border-line pb-1 hover:border-orange hover:text-ink transition">Let's collaborate →</a>
+      </div>
+    </div>
+
+    <!-- ===== AREA VISUAL 3D =====
+      Sekarang nge-load render.glb pakai <model-viewer>.
+      - PC: model nengok ngikutin kursor mouse kamu (lihat script di
+        bawah, bagian "MODEL 3D SETTINGS" / "MODEL 3D BEHAVIOR").
+      - HP/tablet: model diem menghadap depan by default, tapi tetap
+        bisa diputar manual pakai jari (drag di atas modelnya).
+      - Ganti file render.glb di folder yang sama buat ganti modelnya,
+        atau ganti HERO_MODEL_SRC di script bawah kalau nama filenya beda.
+    -->
+    <div class="portrait-frame h-[360px] md:h-[460px] float-y">
+      <div class="portrait-inner h-full flex items-center justify-center">
+        <model-viewer
+          id="heroModel"
+          src="render.glb"
+          alt="3D render preview"
+          camera-controls
+          disable-pan
+          interaction-prompt="none"
+          shadow-intensity="1"
+          exposure="1"
+          environment-image="neutral"
+          camera-orbit="0deg 75deg auto"
+          camera-target="auto auto auto"
+          field-of-view="auto"
+          min-camera-orbit="auto 45deg auto"
+          max-camera-orbit="auto 105deg auto"
+          interpolation-decay="120"
+        ></model-viewer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== LOGO MARQUEE ============================== -->
+<section class="border-y border-line bg-panel/40 py-8 marquee-mask overflow-hidden">
+  <div id="marqueeTrack" class="marquee-track gap-16 px-8"></div>
+  <!-- Diisi otomatis dari array `tools` di <script> bawah.
+       Ganti teks jadi <img src="logo-kamu.png"> kalau sudah punya file logo.
+       Tiap logo bisa diatur ukurannya sendiri-sendiri lewat field `scale`. -->
+</section>
+
+<!-- ============================== BACKGROUND / JOURNEY ==============================
+     Ganti nanti isi array `learningPoints` dan `goals` di <script> bawah.
+============================================================= -->
+<section id="journey" class="relative py-24 md:py-32 px-5 md:px-8 overflow-hidden">
+  <div class="glow w-[420px] h-[420px] top-0 left-1/3 opacity-40"></div>
+  <div class="max-w-7xl mx-auto relative">
+    <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-3 uppercase">Background</p>
+    <h2 class="font-display font-bold text-ink text-4xl md:text-5xl mb-14 max-w-2xl">How I got here, and where I'm headed</h2>
+
+    <div class="grid md:grid-cols-2 gap-12">
+      <div>
+        <h3 class="font-display text-xl text-ink mb-4">How I Learn</h3>
+        <p class="text-mute leading-relaxed mb-6 max-w-md">
+          <!-- EDIT: ceritain proses belajar kamu di sini, contoh dari YouTube,
+               devforum, komunitas, otodidak lewat trial-and-error, dsb. -->
+         I started learning self-taught in 2021 purely as a hobby—taking things apart, breaking projects on purpose to fix them, and mastering the fundamentals through trial and error without releasing any games. By 2025, I transitioned to pursuing game development intensively as my primary career.
+        </p>
+        <!-- Poin belajar tambahan: diisi otomatis dari array `learningPoints` -->
+        <ul id="learningList" class="space-y-3"></ul>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl text-ink mb-4">What I'm Planning</h3>
+        <p class="text-mute leading-relaxed mb-6 max-w-md">
+          <!-- EDIT: ceritain rencana kamu ke depan secara singkat di sini -->
+        Over the next few years, I plan to transition from a solo builder into a lead environment artist and studio founder. My goal is to build an independent, self-sustaining game studio where I can lead a dedicated team to create successful Roblox experiences—shifting from working for a paycheck to owning and scaling high-impact titles together.
+        </p>
+        <!-- Daftar goals: diisi otomatis dari array `goals` -->
+        <div id="goalsList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== TIMELINE ==============================
+     Ganti isi array `timeline` di <script> bawah dengan tahun & pencapaian kamu.
+============================================================= -->
+<section id="timeline" class="relative border-y border-line py-24 md:py-32 px-5 md:px-8 overflow-hidden">
+  <div class="glow w-[420px] h-[420px] bottom-0 right-1/4 opacity-30"></div>
+  <div class="max-w-5xl mx-auto relative">
+    <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-3 uppercase">Timeline</p>
+    <h2 class="font-display font-bold text-ink text-4xl md:text-5xl mb-14">What I've worked on so far</h2>
+
+    <div id="timelineList" class="relative"></div>
+  </div>
+</section>
+
+<!-- ============================== SERVICES ============================== -->
+<section id="services" class="max-w-7xl mx-auto px-5 md:px-8 py-24 md:py-32">
+  <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-3 uppercase">Services</p>
+  <h2 class="font-display font-bold text-ink text-4xl md:text-5xl mb-12">What I can help with</h2>
+
+  <!-- SERVICES LIST: diisi otomatis dari array `services` di <script> bawah -->
+  <div id="servicesList" class="divide-y divide-line border-t border-line max-w-3xl"></div>
+</section>
+
+<!-- ============================== CONTACT & FOOTER ============================== -->
+<section id="contact" class="relative border-t border-line bg-panel/40 px-5 md:px-8 py-24 md:py-28 overflow-hidden">
+  <div class="glow w-[460px] h-[460px] bottom-0 right-0 opacity-50"></div>
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 relative">
+    <div>
+      <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-3 uppercase">Contact</p>
+      <h2 class="font-display font-bold text-ink text-4xl md:text-5xl mb-5">Let's build<br>something.</h2>
+      <p class="text-mute max-w-sm mb-8">
+        Open for Roblox builds, 3D modeling, and collab work. Fill the form or
+        find me on socials below.
+      </p>
+
+      <!-- SOCIAL LINKS: diisi otomatis dari array `socials` di <script> bawah.
+           Tambahin IG orang lain di sini kalau itu project collab. -->
+      <div id="socialLinks" class="flex flex-col gap-3"></div>
+    </div>
+
+    <form id="contactForm" class="space-y-4">
+      <!-- EDIT: ganti YOUR_FORM_ID di bawah dengan Form ID kamu dari
+           https://formspree.io (daftar gratis, bikin form baru, copy
+           ID-nya). Selama YOUR_FORM_ID belum diganti, form ini nggak
+           akan berhasil ngirim ke email manapun. -->
+      <div>
+        <label class="text-xs font-medium text-mute">NAME</label>
+        <input type="text" name="name" required placeholder="MICHAEL.ARTS" class="w-full mt-1 px-4 py-3 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="text-xs font-medium text-mute">EMAIL</label>
+        <input type="email" name="email" required placeholder="you@email.com" class="w-full mt-1 px-4 py-3 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="text-xs font-medium text-mute">MESSAGE</label>
+        <textarea name="message" rows="4" required placeholder="Tell me about your project" class="w-full mt-1 px-4 py-3 rounded-lg text-sm"></textarea>
+      </div>
+      <button id="sendBtn" type="submit" class="btn-primary rounded-full px-7 py-3 text-sm font-semibold w-full sm:w-auto">
+        Send Message
+      </button>
+      <p id="formNote" class="text-xs text-orange hidden"></p>
+    </form>
+  </div>
+
+  <div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-mute relative">
+    <p>Made by <span class="text-ink">MICHAEL.ARTS</span> <!-- EDIT: nama kamu --> · © <span id="year"></span></p>
+    <p>Roblox Studio · Blender · Unreal Engine</p>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   ISI SEMUA KONTEN DI SINI. Ganti array di bawah, HTML di atas nggak
+   perlu disentuh sama sekali.
+===================================================================== */
+
+// ---------- 1. SKILL BADGES (muncul di Hero) ----------
+const skills = [
+  "Roblox Studio",
+  "Blender",
+  "Unreal Engine",
+ 
+];
+
+// ---------- 2. LOGO MARQUEE (tools/software yang berjalan infinite) ----------
+// EDIT: ganti `img` di bawah dengan path/link gambar logo kamu sendiri
+// (bisa file lokal kayak "roblox-studio.png", atau link gambar online).
+// `label` tetap dipakai buat alt text (aksesibilitas), boleh diganti bebas.
+//
+// FIELD `scale` (BARU): ukuran tiap logo sekarang bisa diatur satu-satu.
+//   - scale: 1    -> ukuran normal/default
+//   - scale: 1.3  -> logo ini jadi 30% lebih besar dari default
+//   - scale: 0.7  -> logo ini jadi 30% lebih kecil dari default
+// Ganti angka scale di logo yang mau kamu besarin/kecilin, logo lain
+// yang scale-nya nggak diubah tetap ukuran normal. Nggak ngaruh ke
+// bagian web lain (marquee tetap jalan infinite seperti biasa).
+const tools = [
+  { label: "ROBLOX STUDIO",      img: "roblox.png",              scale: 1   },
+  { label: "BLENDER",            img: "blender.png",             scale: 1 },
+  { label: "UNREAL ENGINE",      img: "engine.png",       scale: 1 },
+    { label: "ROBLOX STUDIO",      img: "roblox.png",              scale: 1   },
+  { label: "BLENDER",            img: "blender.png",             scale: 1 },
+  { label: "UNREAL ENGINE",      img: "engine.png",       scale: 1 },
+ 
+  // EDIT: tambah/hapus tools di sini, ikutin format { label, img, scale }.
+  // Kalau nggak nulis `scale`, otomatis dianggap 1 (ukuran normal).
+];
+
+// ---------- 3. LEARNING POINTS (poin tambahan cara belajar kamu) ----------
+// EDIT: bebas isi berapa poin aja, atau kosongin array-nya kalau nggak perlu.
+const learningPoints = [
+"Self-Taught Foundation (2021–2023): Mastered core game mechanics and systems independently by breaking down complex builds and analyzing how they work under the hood.",
+  "Full-Time Professional Pivot (2024): Shifted from casual exploration to intensive, full-time development—focused entirely on delivering complete, high-quality, game-ready assets.",
+  "Community Feedback & Cinematic Polish: Actively sharpens skills within Roblox dev communities while applying real-world film lighting and composition techniques for immersive visuals."
+
+];
+
+// ---------- 4. GOALS / RENCANA BEBERAPA TAHUN KE DEPAN ----------
+// EDIT: isi rencana kamu ke depan, tambah/hapus sesuka hati.
+const goals = [
+  { year: "2026", text: "Ship a full solo Roblox experience end-to-end" },
+  { year: "2027", text: "Take on freelance 3D environment work" },
+  { year: "2028", text: "Build a small collab team for bigger projects" },
+];
+
+// ---------- 5. TIMELINE — apa aja yang udah dikerjain tiap tahun ----------
+// EDIT: ini yang paling penting buat kamu isi sendiri. Tambah objek baru
+// buat tiap tahun, "items" adalah daftar hal yang kamu kerjakan tahun itu.
+const timeline = [
+  
+  
+  {
+    "year": "2021–2023",
+    "title": "Foundation & Mastery",
+    "items": [
+      "Mastered Roblox Studio and core game mechanics",
+      "Built initial environments ",
+      "Learned Blender independently for 3D props and environment art"
+    ]
+  },
+  {
+    "year": "2024-Now!",
+    "title": "Professional Transition",
+    "items": [
+      "Took on first paid client projects and commercial builds",
+      "Constructed full Roblox maps with advanced custom lighting",
+      "Began exploring Blender for high quality builds"
+    ]
+  },
+  {
+    "year": "Now!",
+    "title": "Studio & Team Collaboration",
+    "items": [
+      "Secured recurring monthly paid contracts and commissions",
+      "Collaborating actively with clients on high-profile projects",
+      "Developing original game titles alongside a dedicated team"
+    ]
+  }
+  // EDIT: tinggal copy blok { year, title, items } di atas buat tahun baru.
+];
+
+// ---------- 6. SERVICES ----------
+const services = [
+  { title: "Building Map", desc: "Playable Roblox environments, from Blank Baseplate to full map." },
+  { title: "Modelling Items", desc: "Props, kits, built in Blender for games" },
+  { title: "System Scripting", desc: "Made a good systems for a game." },
+  // EDIT: tambah/hapus layanan kamu di sini.
+];
+
+// ---------- 7. SOCIAL LINKS (termasuk IG collab) ----------
+// EDIT: `note` opsional, dipakai buat nandain kalau itu akun collab.
+const socials = [
+  { platform: "Instagram", handle: "@yourhandle", url: "https://instagram.com/yourhandle" },
+  { platform: "Roblox", handle: "@Befugu", url: "https://www.roblox.com/users/0000000/profile" },
+  // EDIT: ganti "yourusername" dengan username Discord kamu. Kalau punya
+  // server Discord komunitas, bisa juga ganti url-nya jadi link invite
+  // server (contoh: "https://discord.gg/xxxxxxx").
+  { platform: "Discord", handle: "@Cleoxaqua", url: "https://discord.com/users/yourusername" },
+  // EDIT: ganti dengan email kamu — dipakai buat link "mailto:" biar
+  // pas diklik langsung buka aplikasi email.
+  { platform: "Email", handle: "juliomichael808@gmail.com", url: "mailto:juliomichael808@gmail.com" },
+  // EDIT: contoh nambahin IG orang lain buat project collab:
+  // { platform: "Instagram", handle: "@partnerhandle", url: "https://instagram.com/partnerhandle", note: "collab on Tidefall" },
+];
+
+// ---------- 8. MODEL 3D SETTINGS (hero render.glb) ----------
+// EDIT: ganti path/nama file di bawah kalau nama file model kamu beda,
+// atau kalau kamu naruh modelnya di folder lain (contoh: "assets/render.glb").
+const HERO_MODEL_SRC = "render.glb";
+
+// Sudut kamera default sebelum ada interaksi (dipakai untuk HP/tablet,
+// dan sebagai titik tengah gerakan "ngikutin kursor" di PC).
+// Format: "azimuth polar radius" — azimuth 0deg = hadap depan lurus.
+const HERO_DEFAULT_ORBIT = { azimuth: 0, polar: 75, radius: "auto" };
+
+// Batas maksimum model "nengok" ngikutin kursor di PC (dalam derajat,
+// dihitung dari sudut default di atas). Makin gede angkanya, makin
+// jauh model nengok ke kiri/kanan/atas/bawah waktu kursor di pojok layar.
+const HERO_LOOK_RANGE = { azimuth: 28, polar: 22 };
+
+// Berapa lama (ms) model "diem" nunggu abis di-drag manual sebelum dia
+// balik lagi ke mode "ngikutin kursor" otomatis.
+const HERO_RESUME_DELAY = 2500;
+
+
+/* =====================================================================
+   RENDER LOGIC — nggak wajib diubah, kecuali kamu mau ganti tampilan.
+===================================================================== */
+
+// -- skill badges --
+document.getElementById('skillBadges').innerHTML = skills.map(s =>
+  `<span class="chip px-3 py-1.5 rounded-full">${s}</span>`
+).join('');
+
+// -- marquee (di-duplikat 2x biar loop-nya seamless) --
+function renderLogo(t){
+  // Setiap logo punya ukuran dasar (base) yang sama, lalu dikalikan
+  // dengan `t.scale` masing-masing lewat CSS variable --s. Jadi tiap
+  // logo bisa punya ukuran sendiri tanpa bikin class/box baru satu-satu,
+  // dan tetap responsive (beda ukuran di mobile vs desktop) seperti sebelumnya.
+  const scale = t.scale ?? 1; // default 1 kalau nggak ditulis di array `tools`
+  return `
+    <div class="flex items-center justify-center shrink-0 w-[calc(8rem*var(--s))] h-[calc(4rem*var(--s))] md:w-[calc(10rem*var(--s))] md:h-[calc(5rem*var(--s))]" style="--s:${scale};">
+      <img src="${t.img}" alt="${t.label}" title="${t.label}"
+           class="max-w-full max-h-full w-auto h-auto object-contain opacity-70 hover:opacity-100 transition grayscale hover:grayscale-0">
+    </div>
+  `;
+}
+const marqueeHtml = tools.map(renderLogo).join('<span class="text-line mx-2">✦</span>');
+document.getElementById('marqueeTrack').innerHTML = marqueeHtml + '<span class="text-line mx-2">✦</span>' + marqueeHtml;
+
+// -- learning points --
+document.getElementById('learningList').innerHTML = learningPoints.map(p => `
+  <li class="flex items-start gap-3 text-sm text-mute">
+    <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange shrink-0"></span>
+    <span>${p}</span>
+  </li>
+`).join('');
+
+// -- goals --
+document.getElementById('goalsList').innerHTML = goals.map(g => `
+  <div class="goal-item flex items-center gap-4 py-3">
+    <span class="font-display text-sm text-orange w-12 shrink-0">${g.year}</span>
+    <span class="text-sm text-ink">${g.text}</span>
+  </div>
+`).join('');
+
+// -- timeline --
+document.getElementById('timelineList').innerHTML = `
+  <div class="tl-line"></div>
+  <div class="space-y-10">
+    ${timeline.map((t, i) => `
+      <div class="relative md:flex md:items-start ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}">
+        <div class="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-1 tl-dot"></div>
+        <div class="pl-8 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-10 md:text-right' : 'md:pl-10'}">
+          <span class="font-display text-2xl text-ink">${t.year}</span>
+          <h3 class="font-display text-base text-orange mt-1 mb-3">${t.title}</h3>
+        </div>
+        <div class="pl-8 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-10' : 'md:pr-10 md:text-right'} mt-2 md:mt-0">
+          <div class="tl-card rounded-xl p-5">
+            <ul class="space-y-2 ${i % 2 === 0 ? '' : 'md:text-right'}">
+              ${t.items.map(it => `<li class="text-sm text-mute">${it}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+`;
+
+// -- services --
+document.getElementById('servicesList').innerHTML = services.map((s, i) => `
+  <div class="group py-6 flex items-start gap-6 hover:pl-2 transition-all cursor-default">
+    <span class="service-num">${String(i+1).padStart(2,'0')}</span>
+    <div>
+      <h3 class="font-display text-lg text-ink group-hover:text-orange transition">${s.title}</h3>
+      <p class="text-sm text-mute mt-1">${s.desc}</p>
+    </div>
+  </div>
+`).join('');
+
+// -- socials --
+document.getElementById('socialLinks').innerHTML = socials.map(s => `
+  <a href="${s.url}" target="_blank" rel="noopener" class="flex items-center justify-between border border-line hover:border-orange/60 rounded-lg px-4 py-3 transition group">
+    <span>
+      <span class="block text-xs font-medium text-orange">${s.platform}${s.note ? ' · ' + s.note : ''}</span>
+      <span class="text-ink group-hover:text-orange transition">${s.handle}</span>
+    </span>
+    <span class="text-mute group-hover:text-orange transition">→</span>
+  </a>
+`).join('');
+
+// -- footer year --
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// -- mobile menu toggle --
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+// ---------- 9. MODEL 3D BEHAVIOR (hero render.glb) ----------
+// - PC/mouse: model nengok ngikutin kursor, kecuali lagi di-drag manual.
+// - HP/touch: model diem menghadap depan (HERO_DEFAULT_ORBIT), tapi
+//   tetap bisa diputar manual pakai jari lewat camera-controls bawaan
+//   model-viewer.
+(function initHeroModel(){
+  const mv = document.getElementById('heroModel');
+  if (!mv) return;
+
+  mv.src = HERO_MODEL_SRC;
+  mv.cameraOrbit = `${HERO_DEFAULT_ORBIT.azimuth}deg ${HERO_DEFAULT_ORBIT.polar}deg ${HERO_DEFAULT_ORBIT.radius}`;
+
+  // Deteksi device yang beneran punya mouse (bukan touch-only), supaya
+  // fitur "ngikutin kursor" cuma jalan di PC/laptop.
+  const isMouseDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (!isMouseDevice) return; // di HP: cukup default orbit + drag manual bawaan model-viewer
+
+  let userInteracting = false;
+  let resumeTimer = null;
+
+  mv.addEventListener('camera-change', (ev) => {
+    if (ev.detail && ev.detail.source === 'user-interaction') {
+      userInteracting = true;
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => { userInteracting = false; }, HERO_RESUME_DELAY);
+    }
+  });
+
+  function updateOrbitFromCursor(clientX, clientY){
+    if (userInteracting) return;
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+
+    // Normalisasi posisi kursor ke rentang -1 .. 1 relatif ke seluruh layar,
+    // biar model tetap nengok ngikutin kursor walau kursor lagi nggak
+    // persis di atas modelnya.
+    const nx = (clientX / vw) * 2 - 1;
+    const ny = (clientY / vh) * 2 - 1;
+
+    const azimuth = HERO_DEFAULT_ORBIT.azimuth + nx * HERO_LOOK_RANGE.azimuth;
+    const polar = HERO_DEFAULT_ORBIT.polar + ny * HERO_LOOK_RANGE.polar;
+
+    mv.cameraOrbit = `${azimuth.toFixed(2)}deg ${polar.toFixed(2)}deg ${HERO_DEFAULT_ORBIT.radius}`;
+  }
+
+  let ticking = false;
+  window.addEventListener('mousemove', (e) => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateOrbitFromCursor(e.clientX, e.clientY);
+      ticking = false;
+    });
+  });
+})();
+
+// -- contact form: sends the message to your email via Formspree --
+// EDIT: ganti "YOUR_FORM_ID" dengan Form ID dari https://formspree.io
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mvkogjoq";
+
+const contactForm = document.getElementById('contactForm');
+const sendBtn = document.getElementById('sendBtn');
+const formNote = document.getElementById('formNote');
+
+contactForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if(FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')){
+    formNote.textContent = "Form belum aktif — ganti YOUR_FORM_ID di script dengan Form ID dari formspree.io.";
+    formNote.classList.remove('hidden');
+    return;
+  }
+
+  const originalLabel = sendBtn.textContent;
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Sending...";
+  formNote.classList.add('hidden');
+
+  try{
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      body: new FormData(contactForm),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if(res.ok){
+      formNote.textContent = "Thanks! Your message has been sent.";
+      formNote.classList.remove('hidden');
+      contactForm.reset();
+    } else {
+      formNote.textContent = "Something went wrong — please try again or email me directly.";
+      formNote.classList.remove('hidden');
+    }
+  } catch(err){
+    formNote.textContent = "Something went wrong — please try again or email me directly.";
+    formNote.classList.remove('hidden');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = originalLabel;
+  }
+});
+</script>
+
+</body>
+>>>>>>> 2047ced9e76982cccfe3f100dc6a31ccf53f96c4
 </html>
