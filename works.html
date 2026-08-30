@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="robots" content="noindex, nofollow, noimageindex, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>My Works — MICHAEL.ARTS</title>
+<meta name="description" content="Gallery of Roblox builds, Blender models, and 3D work.">
+
+<!-- ============================================================
+  PAGE 2: WORKS GALLERY (Roblox / Blender / etc.)
+
+  HOW TO EDIT (this is the ONLY thing you touch):
+  Scroll down to the `worksData` variable near the bottom of the
+  <script> tag. Every item is now just:
+
+      { title: "My Cool Build", src: "media/my-cool-build.jpg" }
+
+  - `title`  → whatever name you want shown under the thumbnail.
+  - `src`    → path/URL to the file. Works for BOTH photos and
+               videos — the page auto-detects which one it is by
+               the file extension (.jpg/.png/.webp/.gif = photo,
+               .mp4/.webm/.mov/.m4v = video). You don't need to
+               tell it which type it is.
+
+  Thumbnails and the popup viewer both AUTO-SCALE to match each
+  file's real width/height — no cropping, no stretching, no need
+  to resize anything yourself before uploading.
+
+  Clicking a thumbnail opens a clean, full popup of just the media
+  itself — no title/caption/info box is shown in the popup, only
+  the watermarked photo or video.
+
+  ABOUT THE PROTECTION (please read this):
+  - <meta name="robots" content="noindex, nofollow, noimageindex">
+    tells search engines not to index this page or its media, so
+    it won't show up in Google Images / reverse image search.
+  - Photos are drawn onto an HTML <canvas> with the watermark baked
+    directly into the pixels, then the original image request is
+    discarded (object URL revoked).
+  - Videos are decoded frame-by-frame onto a <canvas> in real time
+    (via requestAnimationFrame) with the watermark redrawn on top
+    of every single frame — so the watermark is baked into what's
+    playing, not a layer sitting on top of a normal <video> tag.
+    The real <video> element is kept invisible and has no native
+    controls, so there's no default "download" button either.
+  - Right-click, drag, text/media selection, and browsing shortcuts
+    (Ctrl+S, Ctrl+U, Ctrl+P, F12, Ctrl+Shift+I/J/C) are blocked.
+  - A rough DevTools-open check blurs the whole gallery while
+    DevTools looks open.
+  - Printing this page is blocked via @media print.
+
+  BEING HONEST: all of this raises the effort required — none of it
+  is a 100% guarantee. No client-side technique (JS/CSS) can truly stop
+  a screenshot, a screen recording, or someone determined enough to dig
+  through the browser's Network tab while the page loads (the browser
+  always has to download the original pixels once, in order to draw
+  them — that step can't be hidden from the browser itself). What this
+  setup DOES give you: no easy right-click save, no clean un-watermarked
+  copy sitting in the DOM, no native video download button, no
+  search-engine indexing, and enough friction to stop casual copying.
+  For anything closer to bulletproof (per-visitor watermarks, expiring
+  signed URLs, server-side rendering) you'd need a real backend —
+  that's outside what a static HTML file can do.
+============================================================= -->
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base:    '#0A0908',
+          panel:   '#161412',
+          line:    '#2A2622',
+          orange:  '#FF6A1A',
+          amber:   '#FFA24C',
+          rust:    '#C7430C',
+          ink:     '#F4F1EC',
+          mute:    '#A69C90',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['"Inter"', 'sans-serif'],
+        },
+      }
+    }
+  }
+</script>
+
+<style>
+  :root{
+    --base:#0A0908; --panel:#161412; --line:#2A2622;
+    --orange:#FF6A1A; --amber:#FFA24C; --rust:#C7430C;
+    --ink:#F4F1EC; --mute:#A69C90;
+  }
+  *{ scrollbar-color: var(--line) var(--base); }
+  html{ scroll-behavior: smooth; }
+  body{ background: var(--base); color: var(--mute); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+  .grad-text{
+    background: linear-gradient(100deg, var(--amber), var(--orange) 60%, var(--rust));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .glow{
+    position:absolute; border-radius:9999px; filter: blur(90px);
+    background: radial-gradient(circle at 30% 30%, rgba(255,138,60,0.55), rgba(199,67,12,0.12) 60%, transparent 75%);
+    pointer-events:none;
+  }
+  @keyframes drift{ 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(-16px,18px) scale(1.06);} }
+  .glow-slow{ animation: drift 14s ease-in-out infinite; }
+
+  .btn-primary{
+    background: linear-gradient(135deg, var(--amber), var(--orange) 55%, var(--rust));
+    color:#1A0900;
+    box-shadow: 0 10px 30px -10px rgba(255,106,26,0.55);
+    transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 16px 36px -8px rgba(255,106,26,0.75); filter: brightness(1.05); }
+
+  .nav-link{ position:relative; color: var(--mute); transition:.25s; }
+  .nav-link::after{ content:""; position:absolute; left:0; bottom:-4px; width:0; height:1.5px; background:linear-gradient(90deg,var(--amber),var(--orange)); transition:width .25s; }
+  .nav-link:hover{ color: var(--ink); }
+  .nav-link:hover::after{ width:100%; }
+  .nav-link.active{ color: var(--ink); }
+  .nav-link.active::after{ width:100%; }
+
+  ::selection{ background: var(--orange); color:#1A0900; }
+
+  /* ---------- category tabs ---------- */
+  .tab-btn{
+    border:1px solid var(--line); background: rgba(255,255,255,0.02); color: var(--mute);
+    transition: all .25s ease; white-space:nowrap;
+  }
+  .tab-btn:hover{ color: var(--ink); border-color: rgba(255,106,26,0.4); }
+  .tab-btn.active{
+    color:#1A0900; border-color: transparent;
+    background: linear-gradient(135deg, var(--amber), var(--orange) 55%, var(--rust));
+    box-shadow: 0 8px 22px -8px rgba(255,106,26,0.6);
+  }
+
+  /* ---------- protected media (canvas-based, watermark baked into pixels) ----------
+     No fixed aspect-ratio is forced — each container's aspect-ratio is set in JS
+     once we know the real width/height of the photo or video, so everything
+     auto-scales to its natural proportions instead of being cropped/stretched. */
+  .protected-media{
+    position:relative; overflow:hidden; border-radius:16px;
+    border:1px solid var(--line); background: var(--panel);
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+    aspect-ratio: 4/3; /* placeholder until real dimensions are known */
+    display:flex; align-items:center; justify-content:center;
+  }
+  .protected-media canvas{
+    display:block; max-width:100%; max-height:100%; width:100%; height:100%;
+    object-fit: contain;
+    pointer-events:none; user-select:none;
+  }
+  .protected-media video{
+    position:absolute; opacity:0; pointer-events:none; width:1px; height:1px;
+  }
+  .protected-media::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 60%, rgba(10,9,8,0.75) 100%);
+    pointer-events:none;
+  }
+  .protected-media .media-loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase; color: var(--mute);
+  }
+  .protected-media .play-hint{
+    position:absolute; bottom:10px; right:12px; z-index:2;
+    font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--ink); background: rgba(10,9,8,0.55); border:1px solid var(--line);
+    padding:4px 8px; border-radius:9999px; pointer-events:none;
+  }
+
+  .work-card{ cursor:pointer; }
+  .work-card .protected-media{ transition: border-color .25s ease, transform .25s ease; }
+  .work-card:hover .protected-media{ border-color: rgba(255,106,26,0.5); transform: translateY(-4px); }
+
+  /* ---------- lightbox (media only — no title/description panel) ---------- */
+  #lightbox{
+    position:fixed; inset:0; z-index:100; background: rgba(6,5,4,0.94);
+    backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition: opacity .25s ease;
+    padding: 24px;
+  }
+  #lightbox.open{ opacity:1; pointer-events:auto; }
+  #lightboxClose{
+    position:absolute; top:20px; right:20px; z-index:2;
+    width:42px; height:42px; border-radius:9999px;
+    border:1px solid var(--line); background: var(--panel); color: var(--ink);
+    display:flex; align-items:center; justify-content:center; transition:.2s;
+  }
+  #lightboxClose:hover{ border-color: var(--orange); color: var(--orange); }
+  #lightboxMedia{
+    position:relative; max-width:min(92vw, 1100px); max-height:88vh;
+    border-radius:14px; overflow:hidden; border:1px solid var(--line);
+    background: var(--panel);
+    display:flex; align-items:center; justify-content:center;
+  }
+  #lightboxMedia canvas{
+    display:block; max-width:min(92vw, 1100px); max-height:88vh;
+    width:auto; height:auto; cursor: pointer;
+  }
+  #lightboxMedia video{ position:absolute; opacity:0; pointer-events:none; width:1px; height:1px; }
+
+  /* ---------- devtools-detected overlay ---------- */
+  #devtoolsShield{
+    position:fixed; inset:0; z-index:200; background: rgba(10,9,8,0.97);
+    display:none; align-items:center; justify-content:center; text-align:center; padding:24px;
+  }
+  #devtoolsShield.show{ display:flex; }
+  body.dt-open #galleryRoot{ filter: blur(24px); pointer-events:none; user-select:none; }
+
+  /* ---------- block printing / print-to-PDF as a save route ---------- */
+  @media print{
+    body::before{
+      content: "Printing is disabled for this gallery.";
+      display:block; text-align:center; padding:40px; font-family:'Inter',sans-serif;
+    }
+    body *{ display:none !important; }
+  }
+
+  /* ---------- smooth page-to-page transition overlay ---------- */
+  .page-transition{
+    position:fixed; inset:0; z-index:9999;
+    background: linear-gradient(135deg, var(--amber), var(--orange) 55%, var(--rust));
+    transform: translateX(0);
+    pointer-events:none;
+  }
+</style>
+</head>
+
+<body class="bg-base text-mute font-body">
+
+<div id="pageTransition" class="page-transition"></div>
+
+<!-- ============================== DEVTOOLS SHIELD ============================== -->
+<div id="devtoolsShield">
+  <div>
+    <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-3 uppercase">Preview protected</p>
+    <h2 class="font-display font-bold text-ink text-2xl md:text-3xl mb-3">Please close Developer Tools</h2>
+    <p class="text-mute max-w-sm mx-auto text-sm">This gallery is hidden while DevTools is open. Close the panel to view the works again.</p>
+  </div>
+</div>
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-base/75 border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="index.html" class="font-display font-semibold tracking-tight text-ink">
+      MICHAEL<span class="grad-text">.</span>ARTS <!-- EDIT: match the name on the main page -->
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="index.html#journey" class="nav-link">About</a>
+      <a href="works.html" class="nav-link active">My Works</a>
+      <a href="index.html#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a href="index.html#contact" class="hidden md:inline-flex btn-primary text-xs px-5 py-2.5 rounded-full font-semibold">
+        Contact Me
+      </a>
+      <button id="menuBtn" class="md:hidden text-ink p-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="md:hidden hidden border-t border-line bg-base/95 px-5 py-4 space-y-3">
+    <a href="index.html" class="block nav-link">Home</a>
+    <a href="index.html#journey" class="block nav-link">About</a>
+    <a href="works.html" class="block nav-link active">My Works</a>
+    <a href="index.html#contact" class="block btn-primary text-center rounded-full py-2.5 text-xs font-semibold mt-2">Contact Me</a>
+  </div>
+</header>
+
+<!-- ============================== HERO ============================== -->
+<section class="relative pt-32 pb-14 md:pt-44 md:pb-16 px-5 md:px-8 overflow-hidden">
+  <div class="glow glow-slow w-[480px] h-[480px] -top-40 -left-40"></div>
+  <div class="glow w-[380px] h-[380px] top-1/4 -right-32 opacity-60"></div>
+
+  <div class="max-w-7xl mx-auto relative">
+    <p class="text-xs font-semibold text-orange tracking-[0.2em] mb-4 uppercase">Gallery</p>
+    <h1 class="font-display font-bold text-ink leading-[0.98] text-4xl sm:text-5xl lg:text-6xl max-w-2xl">
+      A closer look at <span class="grad-text">my works</span>
+    </h1>
+    <p class="mt-6 text-mute max-w-lg leading-relaxed">
+      <!-- EDIT: replace with your own short description for this gallery page -->
+      Roblox environments, Blender models, and everything in between.
+      Previews are watermarked — reach out if you'd like the full-resolution files.
+    </p>
+
+    <!-- CATEGORY TABS: auto-filled from `worksData.categories` in the <script> below -->
+    <div id="categoryTabs" class="flex flex-wrap gap-2.5 mt-9"></div>
+  </div>
+</section>
+
+<!-- ============================== GALLERY ============================== -->
+<section class="max-w-7xl mx-auto px-5 md:px-8 pb-28">
+  <div id="galleryRoot">
+    <p id="categoryDesc" class="text-sm text-mute max-w-xl mb-8"></p>
+    <div id="worksGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="border-t border-line px-5 md:px-8 py-8">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-mute">
+    <p>Made by <span class="text-ink">YOUR NAME</span> <!-- EDIT: your name --> · © <span id="year"></span></p>
+    <a href="index.html" class="hover:text-orange transition">← Back to home</a>
+  </div>
+</footer>
+
+<!-- ============================== LIGHTBOX (media only, no info panel) ============================== -->
+<div id="lightbox">
+  <button id="lightboxClose" aria-label="Close">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div id="lightboxMedia" class="protected-media" style="aspect-ratio:auto; border-radius:14px;"></div>
+</div>
+
+<script>
+/* =====================================================================
+   ALL WORKS LIVE HERE. The HTML and CSS above never need to be touched.
+===================================================================== */
+
+const worksData = {
+  // Watermark text tiled over every photo/video. EDIT to your own name/brand.
+  watermarkText: "MICHAEL-ASSETS",
+
+  // ---------- CATEGORIES ----------
+  // EDIT: add a new category by copying one { id, label, description, works: [...] } block.
+  // `id` must be unique and contain no spaces (used internally to switch tabs).
+  //
+  // Each work is JUST a name + a file path/URL — nothing else to fill in:
+  //   { title: "Sunken Harbor", src: "media/sunken-harbor.jpg" }
+  //   { title: "Flythrough Clip", src: "media/flythrough.mp4"  }
+  // Photo or video is detected automatically from the file extension.
+  categories: [
+    {
+      id: "roblox",
+      label: "Roblox Work",
+      description: "Playable Roblox maps and environments — greybox to full lighting pass.",
+      works: [
+        { title: "Sunken Harbor",  src: "https://placehold.co/900x675/161412/FF6A1A?text=Sunken+Harbor" },
+       
+        // EDIT: add new Roblox pieces here, following the format above.
+        // Example video entry:
+        // { title: "Ashfall Playthrough", src: "media/ashfall-playthrough.mp4" },
+      ]
+    },
+    {
+      id: "blender",
+      label: "Blender Work",
+      description: "Props, kits, and full scenes modeled and rendered in Blender.",
+      works: [
+      
+        // EDIT: add new Blender pieces here.
+      ]
+    },
+    {
+      id: "unreal",
+      label: "Unreal Engine",
+      description: "Cinematic renders and environment tests in Unreal Engine.",
+      works: [
+       
+        // EDIT: add new Unreal Engine pieces here, or delete this whole
+        // category block if you don't have any work in this software yet.
+      ]
+    },
+
+    // Want a new category (e.g. "Art")? Copy one of the category blocks
+    // above and change its id / label / description / works.
+  ]
+};
+
+
+/* =====================================================================
+   RENDER LOGIC + PROTECTION — no need to edit below this line.
+===================================================================== */
+
+let activeCategoryId = worksData.categories[0]?.id;
+
+const VIDEO_EXT = ['mp4', 'webm', 'mov', 'm4v', 'ogv'];
+function isVideoSrc(src){
+  const clean = src.split('?')[0].split('#')[0];
+  const ext = clean.split('.').pop().toLowerCase();
+  return VIDEO_EXT.includes(ext);
+}
+
+// -- draw the tiled watermark text onto whatever canvas context is passed in --
+function drawWatermark(ctx, w, h){
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-24 * Math.PI / 180);
+  ctx.font = `${Math.max(14, w * 0.028)}px 'Space Grotesk', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.textAlign = 'center';
+  const label = worksData.watermarkText + '  ·  PREVIEW';
+  const stepY = h * 0.16;
+  const stepX = w * 0.5;
+  for(let y = -h; y < h * 1.5; y += stepY){
+    for(let x = -w; x < w * 1.5; x += stepX){
+      ctx.fillText(label, x, y);
+    }
+  }
+  ctx.restore();
+}
+
+// -- PHOTOS: fetch → draw once onto canvas → bake watermark into the pixels.
+//    The temporary object URL is revoked right after drawing so no clean
+//    un-watermarked copy lingers in the DOM. Also auto-scales the parent
+//    container to the image's real aspect ratio. --
+async function paintProtectedImage(container, src){
+  container.innerHTML = `<span class="media-loading">Loading…</span>`;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  try{
+    const res = await fetch(src, { referrerPolicy: 'no-referrer' });
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.src = objectUrl;
+    await img.decode();
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+    drawWatermark(ctx, canvas.width, canvas.height);
+
+    URL.revokeObjectURL(objectUrl);
+    container.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
+  }catch(err){
+    canvas.width = 900; canvas.height = 675;
+    ctx.fillStyle = '#161412'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#A69C90'; ctx.font = '16px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Preview unavailable', canvas.width/2, canvas.height/2);
+  }
+
+  container.innerHTML = '';
+  container.appendChild(canvas);
+  return canvas;
+}
+
+// -- VIDEOS: play a hidden, control-less <video> and continuously redraw
+//    its current frame onto a visible canvas, re-stamping the watermark
+//    on top of every single frame — so playback itself is watermarked,
+//    not just a static overlay sitting above a normal video tag. --
+function paintProtectedVideo(container, src, { withPlayHint = false } = {}){
+  container.innerHTML = `<span class="media-loading">Loading…</span>`;
+
+  const video = document.createElement('video');
+  video.src = src;
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.controls = false;
+  video.disablePictureInPicture = true;
+  video.setAttribute('controlsList', 'nodownload noremoteplayback nofullscreen');
+  video.oncontextmenu = (e) => e.preventDefault();
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  let rafId = null;
+
+  function draw(){
+    if(video.videoWidth){
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      drawWatermark(ctx, canvas.width, canvas.height);
+    }
+    rafId = requestAnimationFrame(draw);
+  }
+
+  video.addEventListener('loadedmetadata', () => {
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    container.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
+    container.innerHTML = '';
+    container.appendChild(video);
+    container.appendChild(canvas);
+    if(withPlayHint){
+      const hint = document.createElement('span');
+      hint.className = 'play-hint';
+      hint.textContent = video.paused ? 'Click to play' : 'Playing';
+      container.appendChild(hint);
+      canvas.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(video.paused){ video.play(); hint.textContent = 'Playing'; }
+        else{ video.pause(); hint.textContent = 'Click to play'; }
+      });
+    }
+    video.play().catch(() => { /* autoplay may be blocked until user interacts */ });
+    draw();
+  });
+
+  // pause rendering + free the video once the container leaves the DOM
+  const observer = new MutationObserver(() => {
+    if(!document.body.contains(container)){
+      cancelAnimationFrame(rafId);
+      video.pause();
+      video.src = '';
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  return { video, canvas };
+}
+
+function paintProtectedMedia(container, src, opts = {}){
+  return isVideoSrc(src)
+    ? paintProtectedVideo(container, src, opts)
+    : paintProtectedImage(container, src);
+}
+
+// -- render category tab buttons --
+function renderTabs(){
+  const tabs = document.getElementById('categoryTabs');
+  tabs.innerHTML = worksData.categories.map(c => `
+    <button data-cat="${c.id}" class="tab-btn ${c.id === activeCategoryId ? 'active' : ''} px-4 py-2 rounded-full text-sm font-medium">
+      ${c.label} <span class="opacity-60">(${c.works.length})</span>
+    </button>
+  `).join('');
+  tabs.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategoryId = btn.dataset.cat;
+      renderTabs();
+      renderGrid();
+    });
+  });
+}
+
+// -- render the works grid for the active category --
+function renderGrid(){
+  const cat = worksData.categories.find(c => c.id === activeCategoryId);
+  document.getElementById('categoryDesc').textContent = cat ? cat.description : '';
+
+  const grid = document.getElementById('worksGrid');
+  grid.innerHTML = '';
+  if(!cat || cat.works.length === 0){
+    grid.innerHTML = `<p class="text-sm text-mute">No works in this category yet.</p>`;
+    return;
+  }
+
+  cat.works.forEach((w, idx) => {
+    const card = document.createElement('div');
+    card.className = 'work-card';
+    card.innerHTML = `
+      <div class="protected-media"></div>
+      <h3 class="font-display text-base text-ink mt-3">${w.title}</h3>
+    `;
+    const mediaEl = card.querySelector('.protected-media');
+    paintProtectedMedia(mediaEl, w.src, { withPlayHint: false });
+    card.addEventListener('click', () => openLightbox(cat, idx));
+    grid.appendChild(card);
+  });
+}
+
+// -- lightbox: media only, watermark stays, no title/description shown --
+const lightbox = document.getElementById('lightbox');
+function openLightbox(cat, idx){
+  const w = cat.works[idx];
+  const media = document.getElementById('lightboxMedia');
+  paintProtectedMedia(media, w.src, { withPlayHint: true });
+  lightbox.classList.add('open');
+}
+document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e) => { if(e.target === lightbox) lightbox.classList.remove('open'); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') lightbox.classList.remove('open'); });
+
+renderTabs();
+renderGrid();
+
+// -- footer year --
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// -- mobile menu toggle --
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+/* =====================================================================
+   PROTECTION (best-effort — see the note at the top of this file)
+===================================================================== */
+
+// -- block right-click (context menu) everywhere on the page --
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// -- block dragging (dragging media out of the tab/browser) --
+document.addEventListener('dragstart', (e) => e.preventDefault());
+
+// -- block text/media selection --
+document.addEventListener('selectstart', (e) => e.preventDefault());
+
+// -- block common save / view-source / devtools / print shortcuts --
+document.addEventListener('keydown', (e) => {
+  const k = e.key.toLowerCase();
+  const blockedCombo =
+    (e.ctrlKey || e.metaKey) && ['s','u','p'].includes(k) ||
+    (e.ctrlKey || e.metaKey) && e.shiftKey && ['i','j','c'].includes(k) ||
+    e.key === 'F12';
+  if(blockedCombo){ e.preventDefault(); }
+});
+
+// -- rough DevTools-open detection (compares outer vs inner window size) --
+// NOTE: this is a heuristic. It can false-positive on some browser/OS
+// setups, and it won't catch DevTools opened in a separate window/monitor.
+(function watchDevtools(){
+  const threshold = 160;
+  setInterval(() => {
+    const isOpen = (window.outerWidth - window.innerWidth > threshold) ||
+                   (window.outerHeight - window.innerHeight > threshold);
+    document.body.classList.toggle('dt-open', isOpen);
+    document.getElementById('devtoolsShield').classList.toggle('show', isOpen);
+  }, 500);
+})();
+
+/* =====================================================================
+   SMOOTH PAGE TRANSITION (slide overlay) — no need to edit.
+   On load: overlay slides off to the right, revealing the page.
+   On click of a link to ANOTHER page (index.html, etc): overlay
+   slides in from the left covering the screen, then navigates.
+   In-page anchors and external links are left alone — untouched.
+===================================================================== */
+(function pageTransition(){
+  const overlay = document.getElementById('pageTransition');
+  if(!overlay) return;
+  const DURATION = 550; // ms, keep in sync with the transition below
+
+  function reveal(){
+    overlay.style.transition = `transform ${DURATION}ms cubic-bezier(.65,0,.35,1)`;
+    requestAnimationFrame(() => { overlay.style.transform = 'translateX(100%)'; });
+  }
+
+  window.addEventListener('load', reveal);
+  // handles browsers restoring the page from back/forward cache
+  window.addEventListener('pageshow', (e) => {
+    if(e.persisted){
+      overlay.style.transition = 'none';
+      overlay.style.transform = 'translateX(0)';
+      overlay.getBoundingClientRect();
+      reveal();
+    }
+  });
+
+  document.querySelectorAll('a[href]').forEach((link) => {
+    const href = link.getAttribute('href');
+    if(!href) return;
+    if(href.startsWith('#')) return;                 // in-page anchor
+    if(href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    if(link.target === '_blank') return;              // opens in new tab
+    if(/^https?:\/\//i.test(href)) return;             // external link
+
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      overlay.style.transition = 'none';
+      overlay.style.transform = 'translateX(-100%)';
+      overlay.getBoundingClientRect(); // force reflow
+      requestAnimationFrame(() => {
+        overlay.style.transition = `transform ${DURATION}ms cubic-bezier(.65,0,.35,1)`;
+        overlay.style.transform = 'translateX(0)';
+      });
+      setTimeout(() => { window.location.href = href; }, DURATION);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
