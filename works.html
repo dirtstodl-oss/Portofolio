@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <meta name="robots" content="noindex, nofollow, noimageindex, noarchive">
 <meta name="referrer" content="no-referrer">
-<title>My Works — MICHAEL.ARTWORKS</title>
+<title>My Works — MICHAEL.ARTS</title>
 <meta name="description" content="Gallery of Roblox builds, Blender models, and 3D work.">
 
 <!-- ============================================================
@@ -18,7 +18,7 @@
       {
         title:    "My Cool Build",
         src:      "my-cool-build.jpg",
-        by:       "Me",
+        by:       "Michael",
         date:     "2025",
         software: "Blender"
       }
@@ -334,7 +334,7 @@
 <header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-base/75 border-b border-line">
   <div class="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
     <a href="index.html" class="font-display font-semibold tracking-tight text-ink">
-      MICHAEL<span class="grad-text">.</span>ARTWORKS <!-- EDIT: match the name on the main page -->
+      MICHAEL<span class="grad-text">.</span>ARTS <!-- EDIT: match the name on the main page -->
     </a>
 
     <nav class="hidden md:flex items-center gap-8 text-sm">
@@ -394,7 +394,7 @@
 <!-- ============================== FOOTER ============================== -->
 <footer class="border-t border-line px-5 md:px-8 py-8">
   <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-mute">
-    <p>Made by <span class="text-ink">MICHAEL.ARTWORKS</span> <!-- EDIT: your name --> · © <span id="year"></span></p>
+    <p>Made by <span class="text-ink">MICHAEL.WORKS</span> <!-- EDIT: your name --> · © <span id="year"></span></p>
     <a href="index.html" class="hover:text-orange transition">← Back to home</a>
   </div>
 </footer>
@@ -417,7 +417,7 @@
 
 const worksData = {
   // Watermark text tiled over every photo/video. EDIT to your own name/brand.
-  watermarkText: "MICHAEL.ARTWORKS",
+  watermarkText: "MICHAEL-ASSETS",
 
   // ---------- CATEGORIES ----------
   // EDIT: add a new category by copying one { id, label, description, works: [...] } block.
@@ -443,7 +443,13 @@ const worksData = {
       label: "Roblox Work",
       description: "Playable Roblox maps and environments — greybox to full lighting pass.",
       works: [
-        
+        {
+          title: "Sunken Harbor",
+          src: "sunken-harbor.jpg",
+          by: "Michael",
+          date: "2025",
+          software: "Roblox Studio"
+        },
 
         // EDIT: add new Roblox pieces here, following the format above.
         // Example video entry:
@@ -458,25 +464,11 @@ const worksData = {
         {
           title: "Sparks",
           src: "spak.mp4",
-          by: "Me",
-          date: "2026",
-          software: "Blender"
-        },
-{
-          title: "Sparks Intro (Unedited)",
-          src: "intoune.mp4",
-          by: "Me",
-          date: "2026",
+          by: "Michael",
+          date: "2025",
           software: "Blender"
         },
 
-        {
-          title: "Sparks Intro (Edited 8D)",
-          src: "introporto.mp4",
-          by: "Me",
-          date: "2026",
-          software: "Blender"
-        },
         // EDIT: add new Blender pieces here.
       ]
     },
@@ -517,18 +509,22 @@ const ICONS = {
   sound: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12z"/></svg>',
 };
 
-// -- draw the tiled watermark text onto whatever canvas context is passed in --
+// -- draw the watermark text pinned to the TOP of the frame (instead of
+//    tiled across the whole photo/video), so it always sits in the same
+//    spot regardless of what's playing underneath. --
 function drawWatermark(ctx, w, h){
   ctx.save();
-  ctx.translate(w / 2, h / 2);
-  ctx.rotate(-24 * Math.PI / 180);
   ctx.font = `${Math.max(14, w * 0.028)}px 'Space Grotesk', sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
   ctx.textAlign = 'center';
   const label = worksData.watermarkText + '  ·  PREVIEW';
-  const stepY = h * 0.16;
-  const stepX = w * 0.5;
-  for(let y = -h; y < h * 1.5; y += stepY){
+
+  ctx.translate(w / 2, 0);
+  ctx.rotate(-8 * Math.PI / 180);
+
+  const stepX = w * 0.55;
+  const rows = [h * 0.07, h * 0.17]; // two rows pinned near the top of the frame
+  for(const y of rows){
     for(let x = -w; x < w * 1.5; x += stepX){
       ctx.fillText(label, x, y);
     }
@@ -735,10 +731,13 @@ function renderGrid(){
 // -- lightbox: enlarged card = watermarked media on top, Made by / Date /
 //    Software strip below. No title text shown here. --
 const lightbox = document.getElementById('lightbox');
+let currentLightboxVideo = null; // tracks the currently-playing popup <video> so it can be silenced on close
+
 function openLightbox(cat, idx){
   const w = cat.works[idx];
   const media = document.getElementById('lightboxMedia');
-  paintProtectedMedia(media, w.src, { interactive: true });
+  const handle = paintProtectedMedia(media, w.src, { interactive: true });
+  currentLightboxVideo = (handle && handle.video) ? handle.video : null;
 
   const info = document.getElementById('lightboxInfo');
   const fields = [
@@ -757,9 +756,43 @@ function openLightbox(cat, idx){
 
   lightbox.classList.add('open');
 }
-document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
-lightbox.addEventListener('click', (e) => { if(e.target === lightbox) lightbox.classList.remove('open'); });
-document.addEventListener('keydown', (e) => { if(e.key === 'Escape') lightbox.classList.remove('open'); });
+
+// -- BUGFIX: closing the popup used to just hide it, leaving the video
+//    element playing (and audible) in the background. Now closing fades
+//    the volume down smoothly, then pauses and unloads the video so the
+//    sound actually stops. Opening is untouched — no fade-in, same as
+//    before. --
+function closeLightbox(){
+  lightbox.classList.remove('open');
+
+  const video = currentLightboxVideo;
+  currentLightboxVideo = null;
+  if(!video) return;
+
+  if(video.muted || video.volume === 0){
+    video.pause();
+    video.src = '';
+    return;
+  }
+
+  const FADE_MS = 350;
+  const STEPS = 14;
+  const startVolume = video.volume;
+  let step = 0;
+  const fadeTimer = setInterval(() => {
+    step++;
+    video.volume = Math.max(0, startVolume * (1 - step / STEPS));
+    if(step >= STEPS){
+      clearInterval(fadeTimer);
+      video.pause();
+      video.src = '';
+    }
+  }, FADE_MS / STEPS);
+}
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLightbox(); });
 
 renderTabs();
 renderGrid();
