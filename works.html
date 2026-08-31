@@ -464,8 +464,22 @@ const worksData = {
         {
           title: "Sparks",
           src: "spak.mp4",
-          by: "Michael",
-          date: "2025",
+          by: "MICHAEL.ARTS",
+          date: "2026",
+          software: "Blender"
+        },
+        {
+          title: "Sparks Intro(Unedited)",
+          src: "intoune.mp4",
+          by: "MICHAEL.ARTS",
+          date: "2026",
+          software: "Blender"
+        },
+        {
+          title: "Sparks Intro (8D Audio)",
+          src: "introporto.mp4",
+          by: "MICHAEL.ARTS",
+          date: "2026",
           software: "Blender"
         },
 
@@ -509,22 +523,21 @@ const ICONS = {
   sound: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12z"/></svg>',
 };
 
-// -- draw the watermark text pinned to the TOP of the frame (instead of
-//    tiled across the whole photo/video), so it always sits in the same
-//    spot regardless of what's playing underneath. --
+// -- draw the tiled watermark text onto whatever canvas context is passed in.
+//    It's drawn AFTER the video/photo frame on the same canvas every time,
+//    so it always sits on top and covers the media — the media can never
+//    render over it. --
 function drawWatermark(ctx, w, h){
   ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-24 * Math.PI / 180);
   ctx.font = `${Math.max(14, w * 0.028)}px 'Space Grotesk', sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
   ctx.textAlign = 'center';
   const label = worksData.watermarkText + '  ·  PREVIEW';
-
-  ctx.translate(w / 2, 0);
-  ctx.rotate(-8 * Math.PI / 180);
-
-  const stepX = w * 0.55;
-  const rows = [h * 0.07, h * 0.17]; // two rows pinned near the top of the frame
-  for(const y of rows){
+  const stepY = h * 0.16;
+  const stepX = w * 0.5;
+  for(let y = -h; y < h * 1.5; y += stepY){
     for(let x = -w; x < w * 1.5; x += stepX){
       ctx.fillText(label, x, y);
     }
