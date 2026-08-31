@@ -548,8 +548,8 @@ function renderLogo(t){
     </div>
   `;
 }
-const marqueeHtml = tools.map(renderLogo).join('<span class="text-line mx-2">✦</span>');
-document.getElementById('marqueeTrack').innerHTML = marqueeHtml + '<span class="text-line mx-2">✦</span>' + marqueeHtml;
+const marqueeHtml = tools.map(renderLogo).join('<span class="text-line mx-2"></span>');
+document.getElementById('marqueeTrack').innerHTML = marqueeHtml + '<span class="text-line mx-2"></span>' + marqueeHtml;
 
 // -- learning points --
 document.getElementById('learningList').innerHTML = learningPoints.map(p => `
