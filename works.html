@@ -13,22 +13,36 @@
 
   HOW TO EDIT (this is the ONLY thing you touch):
   Scroll down to the `worksData` variable near the bottom of the
-  <script> tag. Every item is now just:
+  <script> tag. Every item looks like this:
 
-      { title: "My Cool Build", src: "my-cool-build.jpg" }
+      {
+        title:    "My Cool Build",
+        src:      "my-cool-build.jpg",
+        by:       "Michael",
+        date:     "2025",
+        software: "Blender"
+      }
 
-  - `title`  → whatever name you want shown under the thumbnail
-               on the grid. It is NOT shown in the popup — clicking
-               a card opens just the watermarked media, nothing else.
-  - `src`    → just the FILENAME of the photo/video. Since your media
-               files sit in the same folder as this HTML file, you
-               don't need a folder path or a full link — just type
-               the filename exactly as it is, e.g. "harbor.jpg" or
-               "flythrough.mp4". Works for BOTH photos and videos —
-               the page auto-detects which one it is from the file
-               extension (.jpg/.png/.webp/.gif = photo, .mp4/.webm/
-               .mov/.m4v = video). You don't need to tell it which
-               type it is.
+  - `title`    → shown centered ON TOP of the thumbnail on the grid
+                 (before you click it).
+  - `src`      → just the FILENAME of the photo/video. Since your
+                 media files sit in the same folder as this HTML
+                 file, you don't need a folder path or a full link —
+                 just the filename exactly as it is, e.g. "harbor.jpg"
+                 or "flythrough.mp4". Works for BOTH photos and
+                 videos — auto-detected from the file extension
+                 (.jpg/.png/.webp/.gif = photo, .mp4/.webm/.mov/.m4v
+                 = video). You don't need to tell it which type it is.
+  - `by`       → who made it (shown in the popup, under the media).
+  - `date`     → when it was made (shown in the popup).
+  - `software` → what tool it was made in (shown in the popup).
+                 `by` / `date` / `software` are all optional — leave
+                 any of them out and that field just won't show.
+
+  Click a thumbnail and it opens a bigger card: the watermarked photo
+  or video on top, with a strip underneath showing Made by / Date /
+  Software. No title text in the popup itself — just the media and
+  that info strip.
 
   Thumbnails and the popup viewer both AUTO-SCALE to match each
   file's real width/height — no cropping, no stretching, no need
@@ -161,8 +175,8 @@
      once we know the real width/height of the photo or video, so everything
      auto-scales to its natural proportions instead of being cropped/stretched. */
   .protected-media{
-    position:relative; overflow:hidden; border-radius:16px;
-    border:1px solid var(--line); background: var(--panel);
+    position:relative; overflow:hidden;
+    background: var(--panel);
     user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
     aspect-ratio: 4/3; /* placeholder until real dimensions are known */
     display:flex; align-items:center; justify-content:center;
@@ -175,23 +189,36 @@
   .protected-media video{
     position:absolute; opacity:0; pointer-events:none; width:1px; height:1px;
   }
-  .protected-media::after{
-    content:""; position:absolute; inset:0;
-    background: linear-gradient(180deg, transparent 60%, rgba(10,9,8,0.75) 100%);
-    pointer-events:none;
-  }
   .protected-media .media-loading{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     font-size:11px; letter-spacing:.1em; text-transform:uppercase; color: var(--mute);
   }
 
+  /* ---------- grid card: title centered on top of the thumbnail ---------- */
   .work-card{ cursor:pointer; }
-  .work-card .protected-media{ transition: border-color .25s ease, transform .25s ease; }
-  .work-card:hover .protected-media{ border-color: rgba(255,106,26,0.5); transform: translateY(-4px); }
+  .media-wrap{
+    position:relative; border-radius:16px; overflow:hidden;
+    border:1px solid var(--line); transition: border-color .25s ease, transform .25s ease;
+  }
+  .work-card:hover .media-wrap{ border-color: rgba(255,106,26,0.5); transform: translateY(-4px); }
+  .media-wrap::after{
+    content:""; position:absolute; inset:0; z-index:2;
+    background: linear-gradient(180deg, rgba(10,9,8,0.35) 0%, rgba(10,9,8,0.15) 40%, rgba(10,9,8,0.55) 100%);
+    pointer-events:none;
+  }
+  .thumb-title{
+    position:absolute; inset:0; z-index:3;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    padding: 16px; pointer-events:none;
+  }
+  .thumb-title span{
+    font-family: 'Space Grotesk', sans-serif; font-weight:600; font-size:1.05rem;
+    color: var(--ink); text-shadow: 0 2px 14px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.6);
+  }
 
   /* ---------- simple custom video player controls (drawn over the canvas) ---------- */
   .video-controls{
-    position:absolute; inset:0; z-index:3;
+    position:absolute; inset:0; z-index:4;
     display:flex; align-items:center; justify-content:center;
   }
   .video-controls .center-btn{
@@ -204,7 +231,7 @@
   .video-controls .center-btn:hover{ background: rgba(10,9,8,0.75); transform: scale(1.06); }
   .video-controls .center-btn.hidden-btn{ opacity:0; pointer-events:none; }
   .video-bottom-bar{
-    position:absolute; left:0; right:0; bottom:0; z-index:3;
+    position:absolute; left:0; right:0; bottom:0; z-index:4;
     display:flex; align-items:center; gap:10px;
     padding:10px 12px;
     background: linear-gradient(0deg, rgba(10,9,8,0.85), transparent);
@@ -221,7 +248,7 @@
     opacity:.85;
   }
 
-  /* ---------- lightbox (media only — no title/description panel) ---------- */
+  /* ---------- lightbox: enlarged card = media on top + info strip below ---------- */
   #lightbox{
     position:fixed; inset:0; z-index:100; background: rgba(6,5,4,0.94);
     backdrop-filter: blur(6px);
@@ -237,17 +264,32 @@
     display:flex; align-items:center; justify-content:center; transition:.2s;
   }
   #lightboxClose:hover{ border-color: var(--orange); color: var(--orange); }
+
+  #lightboxCard{
+    display:flex; flex-direction:column;
+    width:fit-content; max-width:min(92vw, 900px); max-height:90vh;
+    border-radius:16px; overflow:hidden;
+    border:1px solid var(--line); background: var(--panel);
+  }
   #lightboxMedia{
-    position:relative; max-width:min(92vw, 1100px); max-height:88vh;
-    border-radius:14px; overflow:hidden; border:1px solid var(--line);
-    background: var(--panel);
-    display:flex; align-items:center; justify-content:center;
+    aspect-ratio:auto; max-height:70vh;
   }
   #lightboxMedia canvas{
-    display:block; max-width:min(92vw, 1100px); max-height:88vh;
+    max-width:min(92vw, 900px); max-height:70vh;
     width:auto; height:auto;
   }
   #lightboxMedia video{ position:absolute; opacity:0; pointer-events:none; width:1px; height:1px; }
+
+  #lightboxInfo{
+    display:flex; flex-wrap:wrap; gap:8px 28px;
+    padding:16px 20px; border-top:1px solid var(--line);
+  }
+  #lightboxInfo .info-item{ display:flex; flex-direction:column; gap:3px; }
+  #lightboxInfo .info-label{
+    font-size:10px; letter-spacing:.1em; text-transform:uppercase; color: var(--mute);
+  }
+  #lightboxInfo .info-value{ font-size:13.5px; color: var(--ink); font-weight:500; }
+  #lightboxInfo.empty{ display:none; }
 
   /* ---------- devtools-detected overlay ---------- */
   #devtoolsShield{
@@ -357,12 +399,15 @@
   </div>
 </footer>
 
-<!-- ============================== LIGHTBOX (media only, no info panel) ============================== -->
+<!-- ============================== LIGHTBOX (media card + Made by / Date / Software strip) ============================== -->
 <div id="lightbox">
   <button id="lightboxClose" aria-label="Close">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
-  <div id="lightboxMedia" class="protected-media" style="aspect-ratio:auto; border-radius:14px;"></div>
+  <div id="lightboxCard">
+    <div id="lightboxMedia" class="protected-media"></div>
+    <div id="lightboxInfo"></div>
+  </div>
 </div>
 
 <script>
@@ -378,27 +423,37 @@ const worksData = {
   // EDIT: add a new category by copying one { id, label, description, works: [...] } block.
   // `id` must be unique and contain no spaces (used internally to switch tabs).
   //
-  // Each work is JUST a name + a filename — nothing else to fill in.
-  // Since your photo/video files live in the SAME FOLDER as this HTML
-  // file, `src` can just be the plain filename — no folder path, no
-  // full link needed:
-  //   { title: "Sunken Harbor", src: "sunken-harbor.jpg" }
-  //   { title: "Flythrough Clip", src: "flythrough.mp4"  }
-  // Photo or video is detected automatically from the file extension.
-  // (If you DO want to organize files into a subfolder later, e.g. a
-  // "media" folder next to this HTML file, just write "media/filename.jpg"
-  // instead — either way works.)
+  // Each work looks like this — `src` is just the plain filename since
+  // your media files live in the SAME FOLDER as this HTML file (no
+  // folder path or full link needed). `by` / `date` / `software` are
+  // optional — shown in the popup's info strip, leave any out to hide it.
+  //
+  //   {
+  //     title: "Sunken Harbor",
+  //     src: "sunken-harbor.jpg",
+  //     by: "Michael",
+  //     date: "2025",
+  //     software: "Roblox Studio"
+  //   }
+  //
+  // Photo or video is auto-detected from the file extension.
   categories: [
     {
       id: "roblox",
       label: "Roblox Work",
       description: "Playable Roblox maps and environments — greybox to full lighting pass.",
       works: [
-        { title: "Sunken Harbor", src: "sunken-harbor.jpg" },
+        {
+          title: "Sunken Harbor",
+          src: "sunken-harbor.jpg",
+          by: "Michael",
+          date: "2025",
+          software: "Roblox Studio"
+        },
 
         // EDIT: add new Roblox pieces here, following the format above.
         // Example video entry:
-        // { title: "Ashfall Playthrough", src: "ashfall-playthrough.mp4" },
+        // { title: "Ashfall Playthrough", src: "ashfall-playthrough.mp4", by: "Michael", date: "2025", software: "Roblox Studio" },
       ]
     },
     {
@@ -406,7 +461,13 @@ const worksData = {
       label: "Blender Work",
       description: "Props, kits, and full scenes modeled and rendered in Blender.",
       works: [
-        { title: "Sparks", src: "spak.mp4" },
+        {
+          title: "Sparks",
+          src: "spak.mp4",
+          by: "Michael",
+          date: "2025",
+          software: "Blender"
+        },
 
         // EDIT: add new Blender pieces here.
       ]
@@ -634,7 +695,8 @@ function renderTabs(){
   });
 }
 
-// -- render the works grid for the active category --
+// -- render the works grid for the active category: title sits centered
+//    ON TOP of the thumbnail, before anything is clicked --
 function renderGrid(){
   const cat = worksData.categories.find(c => c.id === activeCategoryId);
   document.getElementById('categoryDesc').textContent = cat ? cat.description : '';
@@ -650,8 +712,10 @@ function renderGrid(){
     const card = document.createElement('div');
     card.className = 'work-card';
     card.innerHTML = `
-      <div class="protected-media"></div>
-      <h3 class="font-display text-base text-ink mt-3">${w.title}</h3>
+      <div class="media-wrap">
+        <div class="protected-media"></div>
+        <div class="thumb-title"><span>${w.title}</span></div>
+      </div>
     `;
     const mediaEl = card.querySelector('.protected-media');
     paintProtectedMedia(mediaEl, w.src, { interactive: false });
@@ -660,12 +724,29 @@ function renderGrid(){
   });
 }
 
-// -- lightbox: media only, watermark stays, title/description never shown here --
+// -- lightbox: enlarged card = watermarked media on top, Made by / Date /
+//    Software strip below. No title text shown here. --
 const lightbox = document.getElementById('lightbox');
 function openLightbox(cat, idx){
   const w = cat.works[idx];
   const media = document.getElementById('lightboxMedia');
   paintProtectedMedia(media, w.src, { interactive: true });
+
+  const info = document.getElementById('lightboxInfo');
+  const fields = [
+    ['Made by', w.by],
+    ['Date', w.date],
+    ['Software', w.software],
+  ].filter(([, value]) => !!value);
+
+  info.classList.toggle('empty', fields.length === 0);
+  info.innerHTML = fields.map(([label, value]) => `
+    <div class="info-item">
+      <span class="info-label">${label}</span>
+      <span class="info-value">${value}</span>
+    </div>
+  `).join('');
+
   lightbox.classList.add('open');
 }
 document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
