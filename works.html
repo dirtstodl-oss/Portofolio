@@ -15,22 +15,32 @@
   Scroll down to the `worksData` variable near the bottom of the
   <script> tag. Every item is now just:
 
-      { title: "My Cool Build", src: "media/my-cool-build.jpg" }
+      { title: "My Cool Build", src: "my-cool-build.jpg" }
 
-  - `title`  → whatever name you want shown under the thumbnail.
-  - `src`    → path/URL to the file. Works for BOTH photos and
-               videos — the page auto-detects which one it is by
-               the file extension (.jpg/.png/.webp/.gif = photo,
-               .mp4/.webm/.mov/.m4v = video). You don't need to
-               tell it which type it is.
+  - `title`  → whatever name you want shown under the thumbnail
+               on the grid. It is NOT shown in the popup — clicking
+               a card opens just the watermarked media, nothing else.
+  - `src`    → just the FILENAME of the photo/video. Since your media
+               files sit in the same folder as this HTML file, you
+               don't need a folder path or a full link — just type
+               the filename exactly as it is, e.g. "harbor.jpg" or
+               "flythrough.mp4". Works for BOTH photos and videos —
+               the page auto-detects which one it is from the file
+               extension (.jpg/.png/.webp/.gif = photo, .mp4/.webm/
+               .mov/.m4v = video). You don't need to tell it which
+               type it is.
 
   Thumbnails and the popup viewer both AUTO-SCALE to match each
   file's real width/height — no cropping, no stretching, no need
   to resize anything yourself before uploading.
 
-  Clicking a thumbnail opens a clean, full popup of just the media
-  itself — no title/caption/info box is shown in the popup, only
-  the watermarked photo or video.
+  VIDEOS: on the grid they just loop silently as a preview. Click
+  one and the popup opens a real little video player — play/pause
+  and a mute/unmute button — and tries to start playing WITH sound
+  right away. (Browsers sometimes block autoplay-with-sound until
+  you've clicked something on the page first; if that happens it
+  auto-falls-back to starting muted with the unmute button lit up
+  so one click turns the sound on.)
 
   ABOUT THE PROTECTION (please read this):
   - <meta name="robots" content="noindex, nofollow, noimageindex">
@@ -44,7 +54,8 @@
     of every single frame — so the watermark is baked into what's
     playing, not a layer sitting on top of a normal <video> tag.
     The real <video> element is kept invisible and has no native
-    controls, so there's no default "download" button either.
+    controls (so no built-in "download" button); play/pause/mute
+    are custom buttons drawn on top of the canvas instead.
   - Right-click, drag, text/media selection, and browsing shortcuts
     (Ctrl+S, Ctrl+U, Ctrl+P, F12, Ctrl+Shift+I/J/C) are blocked.
   - A rough DevTools-open check blurs the whole gallery while
@@ -173,16 +184,42 @@
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     font-size:11px; letter-spacing:.1em; text-transform:uppercase; color: var(--mute);
   }
-  .protected-media .play-hint{
-    position:absolute; bottom:10px; right:12px; z-index:2;
-    font-size:10px; letter-spacing:.08em; text-transform:uppercase;
-    color: var(--ink); background: rgba(10,9,8,0.55); border:1px solid var(--line);
-    padding:4px 8px; border-radius:9999px; pointer-events:none;
-  }
 
   .work-card{ cursor:pointer; }
   .work-card .protected-media{ transition: border-color .25s ease, transform .25s ease; }
   .work-card:hover .protected-media{ border-color: rgba(255,106,26,0.5); transform: translateY(-4px); }
+
+  /* ---------- simple custom video player controls (drawn over the canvas) ---------- */
+  .video-controls{
+    position:absolute; inset:0; z-index:3;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .video-controls .center-btn{
+    width:60px; height:60px; border-radius:9999px;
+    background: rgba(10,9,8,0.55); border:1px solid rgba(255,255,255,0.25);
+    color: var(--ink); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background .2s ease, transform .2s ease;
+    backdrop-filter: blur(2px);
+  }
+  .video-controls .center-btn:hover{ background: rgba(10,9,8,0.75); transform: scale(1.06); }
+  .video-controls .center-btn.hidden-btn{ opacity:0; pointer-events:none; }
+  .video-bottom-bar{
+    position:absolute; left:0; right:0; bottom:0; z-index:3;
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    background: linear-gradient(0deg, rgba(10,9,8,0.85), transparent);
+  }
+  .video-bottom-bar button{
+    width:34px; height:34px; border-radius:9999px;
+    background: rgba(10,9,8,0.55); border:1px solid rgba(255,255,255,0.2);
+    color: var(--ink); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background .2s ease;
+  }
+  .video-bottom-bar button:hover{ background: rgba(255,106,26,0.35); }
+  .video-bottom-bar .sound-hint{
+    font-size:10px; letter-spacing:.06em; text-transform:uppercase; color: var(--ink);
+    opacity:.85;
+  }
 
   /* ---------- lightbox (media only — no title/description panel) ---------- */
   #lightbox{
@@ -194,7 +231,7 @@
   }
   #lightbox.open{ opacity:1; pointer-events:auto; }
   #lightboxClose{
-    position:absolute; top:20px; right:20px; z-index:2;
+    position:absolute; top:20px; right:20px; z-index:5;
     width:42px; height:42px; border-radius:9999px;
     border:1px solid var(--line); background: var(--panel); color: var(--ink);
     display:flex; align-items:center; justify-content:center; transition:.2s;
@@ -208,7 +245,7 @@
   }
   #lightboxMedia canvas{
     display:block; max-width:min(92vw, 1100px); max-height:88vh;
-    width:auto; height:auto; cursor: pointer;
+    width:auto; height:auto;
   }
   #lightboxMedia video{ position:absolute; opacity:0; pointer-events:none; width:1px; height:1px; }
 
@@ -341,21 +378,27 @@ const worksData = {
   // EDIT: add a new category by copying one { id, label, description, works: [...] } block.
   // `id` must be unique and contain no spaces (used internally to switch tabs).
   //
-  // Each work is JUST a name + a file path/URL — nothing else to fill in:
-  //   { title: "Sunken Harbor", src: "media/sunken-harbor.jpg" }
-  //   { title: "Flythrough Clip", src: "media/flythrough.mp4"  }
+  // Each work is JUST a name + a filename — nothing else to fill in.
+  // Since your photo/video files live in the SAME FOLDER as this HTML
+  // file, `src` can just be the plain filename — no folder path, no
+  // full link needed:
+  //   { title: "Sunken Harbor", src: "sunken-harbor.jpg" }
+  //   { title: "Flythrough Clip", src: "flythrough.mp4"  }
   // Photo or video is detected automatically from the file extension.
+  // (If you DO want to organize files into a subfolder later, e.g. a
+  // "media" folder next to this HTML file, just write "media/filename.jpg"
+  // instead — either way works.)
   categories: [
     {
       id: "roblox",
       label: "Roblox Work",
       description: "Playable Roblox maps and environments — greybox to full lighting pass.",
       works: [
-        { title: "Sunken Harbor",  src: "https://placehold.co/900x675/161412/FF6A1A?text=Sunken+Harbor" },
-       
+        { title: "Sunken Harbor", src: "sunken-harbor.jpg" },
+
         // EDIT: add new Roblox pieces here, following the format above.
         // Example video entry:
-        // { title: "Ashfall Playthrough", src: "media/ashfall-playthrough.mp4" },
+        // { title: "Ashfall Playthrough", src: "ashfall-playthrough.mp4" },
       ]
     },
     {
@@ -363,7 +406,8 @@ const worksData = {
       label: "Blender Work",
       description: "Props, kits, and full scenes modeled and rendered in Blender.",
       works: [
-      
+        { title: "Sparks", src: "spak.mp4" },
+
         // EDIT: add new Blender pieces here.
       ]
     },
@@ -372,7 +416,7 @@ const worksData = {
       label: "Unreal Engine",
       description: "Cinematic renders and environment tests in Unreal Engine.",
       works: [
-       
+
         // EDIT: add new Unreal Engine pieces here, or delete this whole
         // category block if you don't have any work in this software yet.
       ]
@@ -396,6 +440,13 @@ function isVideoSrc(src){
   const ext = clean.split('.').pop().toLowerCase();
   return VIDEO_EXT.includes(ext);
 }
+
+const ICONS = {
+  play:  '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
+  mute:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>',
+  sound: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12z"/></svg>',
+};
 
 // -- draw the tiled watermark text onto whatever canvas context is passed in --
 function drawWatermark(ctx, w, h){
@@ -456,20 +507,25 @@ async function paintProtectedImage(container, src){
 // -- VIDEOS: play a hidden, control-less <video> and continuously redraw
 //    its current frame onto a visible canvas, re-stamping the watermark
 //    on top of every single frame — so playback itself is watermarked,
-//    not just a static overlay sitting above a normal video tag. --
-function paintProtectedVideo(container, src, { withPlayHint = false } = {}){
+//    not just a static overlay sitting above a normal video tag.
+//
+//    `interactive: true` (used in the popup) adds a real little player:
+//    a center play/pause button and a bottom-left mute button, and tries
+//    to autoplay WITH sound. Grid thumbnails use `interactive: false` and
+//    just loop silently as a preview, with no visible controls. --
+function paintProtectedVideo(container, src, { interactive = false } = {}){
   container.innerHTML = `<span class="media-loading">Loading…</span>`;
 
   const video = document.createElement('video');
   video.src = src;
-  video.muted = true;
   video.loop = true;
   video.playsInline = true;
-  video.preload = 'metadata';
+  video.preload = 'auto';
   video.controls = false;
   video.disablePictureInPicture = true;
   video.setAttribute('controlsList', 'nodownload noremoteplayback nofullscreen');
   video.oncontextmenu = (e) => e.preventDefault();
+  video.muted = !interactive; // thumbnails must be muted to be allowed to autoplay
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -490,18 +546,54 @@ function paintProtectedVideo(container, src, { withPlayHint = false } = {}){
     container.innerHTML = '';
     container.appendChild(video);
     container.appendChild(canvas);
-    if(withPlayHint){
-      const hint = document.createElement('span');
-      hint.className = 'play-hint';
-      hint.textContent = video.paused ? 'Click to play' : 'Playing';
-      container.appendChild(hint);
-      canvas.addEventListener('click', (e) => {
+
+    let controls, centerBtn, muteBtn, soundHint;
+    if(interactive){
+      controls = document.createElement('div');
+      controls.innerHTML = `
+        <div class="video-controls">
+          <button type="button" class="center-btn" data-role="center">${ICONS.play}</button>
+        </div>
+        <div class="video-bottom-bar">
+          <button type="button" data-role="mute">${ICONS.sound}</button>
+          <span class="sound-hint" data-role="hint"></span>
+        </div>
+      `;
+      container.appendChild(controls);
+      centerBtn = controls.querySelector('[data-role="center"]');
+      muteBtn   = controls.querySelector('[data-role="mute"]');
+      soundHint = controls.querySelector('[data-role="hint"]');
+
+      function syncButtons(){
+        centerBtn.innerHTML = video.paused ? ICONS.play : ICONS.pause;
+        centerBtn.classList.toggle('hidden-btn', !video.paused);
+        muteBtn.innerHTML = video.muted ? ICONS.mute : ICONS.sound;
+        soundHint.textContent = video.muted ? 'Tap to unmute' : '';
+      }
+
+      const togglePlay = () => { video.paused ? video.play() : video.pause(); syncButtons(); };
+      centerBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+      canvas.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+      muteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if(video.paused){ video.play(); hint.textContent = 'Playing'; }
-        else{ video.pause(); hint.textContent = 'Click to play'; }
+        video.muted = !video.muted;
+        if(!video.muted) video.play().catch(() => {});
+        syncButtons();
       });
+      video.addEventListener('play', syncButtons);
+      video.addEventListener('pause', syncButtons);
+
+      // try to autoplay WITH sound first (works since this fires from a
+      // click-triggered flow); if the browser blocks it, fall back to a
+      // muted autoplay so the video still starts moving right away.
+      video.play().then(syncButtons).catch(() => {
+        video.muted = true;
+        video.play().then(syncButtons).catch(() => {});
+      });
+    }else{
+      video.play().catch(() => { /* thumbnail autoplay may be deferred until visible */ });
     }
-    video.play().catch(() => { /* autoplay may be blocked until user interacts */ });
+
     draw();
   });
 
@@ -562,18 +654,18 @@ function renderGrid(){
       <h3 class="font-display text-base text-ink mt-3">${w.title}</h3>
     `;
     const mediaEl = card.querySelector('.protected-media');
-    paintProtectedMedia(mediaEl, w.src, { withPlayHint: false });
+    paintProtectedMedia(mediaEl, w.src, { interactive: false });
     card.addEventListener('click', () => openLightbox(cat, idx));
     grid.appendChild(card);
   });
 }
 
-// -- lightbox: media only, watermark stays, no title/description shown --
+// -- lightbox: media only, watermark stays, title/description never shown here --
 const lightbox = document.getElementById('lightbox');
 function openLightbox(cat, idx){
   const w = cat.works[idx];
   const media = document.getElementById('lightboxMedia');
-  paintProtectedMedia(media, w.src, { withPlayHint: true });
+  paintProtectedMedia(media, w.src, { interactive: true });
   lightbox.classList.add('open');
 }
 document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
